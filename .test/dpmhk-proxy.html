@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <title>DPmHK – PIS (proxy)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- OpenLayers -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/openlayers@4.6.5/dist/ol.css">
+
+  <!-- jQuery (PIS ho používá všude) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Minimal CSS, aby to drželo layout -->
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    #app {
+      display: flex;
+      height: 100%;
+    }
+
+    #sidebar {
+      width: 380px;
+      border-right: 1px solid #ddd;
+      overflow: auto;
+      background: #fff;
+    }
+
+    #map {
+      flex: 1;
+    }
+
+    .sidebar__content {
+      padding: 8px;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .search-bar__input {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 14px;
+    }
+
+    .search-result--main,
+    .search-result--detail {
+      display: none;
+      padding: 8px;
+    }
+
+    .search-result--main > div,
+    .search-result--detail > div {
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+
+    .sidebar--empty::after {
+      content: "Vyhledávání / mapa";
+      display: block;
+      padding: 12px;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <div id="sidebar" class="sidebar sidebar--empty">
+    <div class="search-bar">
+      <span class="search-bar__icon glyphicons glyphicons-menu-hamburger"></span>
+      <input
+        type="text"
+        class="search-bar__input"
+        placeholder="Vyhledávání…"
+      >
+      <span class="search-bar__clear">✕</span>
+    </div>
+
+    <div class="sidebar__content">
+      <ul class="list-suggestions"></ul>
+
+      <div class="search-result search-result--main"></div>
+      <div class="search-result search-result--detail"></div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div id="map"></div>
+</div>
+
+<!-- ========================= -->
+<!-- PIS CONFIG + PROXY SETUP -->
+<!-- ========================= -->
+<script>
+  // ZÁKLADNÍ NASTAVENÍ
+  window.API_KEY = ""; // MapyCZ se nepoužívají, OpenLayers ano
+
+  // Proxy prefix
+  const PROXY = "https://corsproxy.io/?https://dpmhk.qrbus.me";
+
+  // Globální PIS objekt (pokud by ho pis.js ještě neměl)
+  window.pis = window.pis || {};
+  pis.ajax = pis.ajax || {};
+
+  // Přesměrování všech API endpointů přes proxy
+  pis.ajax.getAllRtdVehicles      = PROXY + "/index/getAllRtdVehicles";
+  pis.ajax.getLinesWithRoutes     = PROXY + "/index/getLinesWithRoutes";
+  pis.ajax.getAllPlatforms        = PROXY + "/index/getAllPlatforms";
+  pis.ajax.getAllStops            = PROXY + "/index/getAllStops";
+  pis.ajax.getAllLines            = PROXY + "/index/getAllLines";
+  pis.ajax.getLineStops           = PROXY + "/index/getLineStops";
+  pis.ajax.getLineStopList        = PROXY + "/index/getLineStopList";
+  pis.ajax.getPlatformLineSchedule= PROXY + "/index/getPlatformLineSchedule";
+  pis.ajax.getAllPlaces           = PROXY + "/index/getAllPlaces";
+
+  // Nastavení PIS
+  pis.settings = pis.settings || {};
+  pis.settings.skin = "default";
+  pis.settings.vehiclesOnStart = true;
+  pis.settings.mapVehicleLineToLineNumberText = true;
+  pis.settings.virtualization = true;
+</script>
+
+<!-- ========================= -->
+<!-- PIS CORE SCRIPTS -->
+<!-- ========================= -->
+
+<!-- wertyz helper + map utils (nutné pro pis.js / main.js) -->
+<script src="https://cdn.jsdelivr.net/npm/openlayers@4.6.5/dist/ol.js"></script>
+
+<!-- WERTYZ CORE (MUSÍ BÝT PŘED pis.js) -->
+<script src="./wertyz.js"></script>
+<script src="./wertyz.map.js"></script>
+
+<!-- PIS -->
+<script src="./pis.js"></script>
+<script src="./main.js"></script>
+
+</body>
+</html>

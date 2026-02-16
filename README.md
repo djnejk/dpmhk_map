@@ -29,7 +29,7 @@ Neoficiální mapa vozidel MHD v Hradci Králové (+ vybrané další vrstvy: vl
 - `index.php` – jednoduchý „entrypoint“ (prototyp / placeholder stránky)
 - `proxy.php` – GET proxy pro RTD (ochrana přes whitelist povolených cest)
 - `iredo-proxy.php` – POST proxy pro IREDO (`/map/mapData`) s CORS hlavičkami a základní validací payloadu
-- `_icons/` – ikony používané v mapě (pokud je využíváš ve frontendu)
-- `.test/` – pomocné/testovací věci (pokud je používáš)
+- `_icons/` – ikony používané v mapě
+- `.test/` – pomocné/testovací věci 
 
 ---

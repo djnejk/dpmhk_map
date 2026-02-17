@@ -485,6 +485,14 @@
             <div class="t-title">Zpoždění/předjetí</div>
           </div>
         </label>
+
+        <label class="toggle">
+          <input id="tgLblNp" type="checkbox" />
+          <div>
+            <div class="t-title">Počet cestujících</div>
+          </div>
+        </label>
+
       </div>
     </div>
 
@@ -695,8 +703,10 @@
     const labelState = {
       showLine: true,
       showBusNumber: false,
-      showDelay: false
+      showDelay: false,
+      showNp: false
     };
+
 
     const tgWithLine = document.getElementById("tgWithLine");
     const tgNoLine = document.getElementById("tgNoLine");
@@ -708,6 +718,7 @@
     const tgLblLine = document.getElementById("tgLblLine");
     const tgLblBus = document.getElementById("tgLblBus");
     const tgLblDelay = document.getElementById("tgLblDelay");
+    const tgLblNp = document.getElementById("tgLblNp");
 
     function syncFilterStateFromPanel() {
       filterState.showWithLine = !!tgWithLine.checked;
@@ -724,11 +735,13 @@
       labelState.showLine = !!tgLblLine.checked;
       labelState.showBusNumber = !!tgLblBus.checked;
       labelState.showDelay = !!tgLblDelay.checked;
+      labelState.showNp = !!tgLblNp.checked;
       refreshVehicleTooltips();
     }
 
+
     [tgWithLine, tgNoLine, tgManip, tgOffline, tgUnknown, tgGhost].forEach(el => el.addEventListener("change", syncFilterStateFromPanel));
-    [tgLblLine, tgLblBus, tgLblDelay].forEach(el => el.addEventListener("change", syncLabelStateFromPanel));
+    [tgLblLine, tgLblBus, tgLblDelay, tgLblNp].forEach(el => el.addEventListener("change", syncLabelStateFromPanel));
 
     // ====== search filter ======
     const searchState = {
@@ -1017,14 +1030,19 @@
 
     function getVehicleTooltipLabel(v) {
       const parts = [];
+
       if (labelState.showLine) {
         const line = getLineLabel(v);
         if (line && line !== "—") parts.push(line);
       }
+
       if (labelState.showBusNumber) {
         const b = v?.b;
-        if (b != null && String(b).trim() !== "") parts.push(`<span style="color:#ff0055">${String(b)}</span>`);
+        if (b != null && String(b).trim() !== "") {
+          parts.push(`<span style="color:#ff0055">${String(b)}</span>`);
+        }
       }
+
       if (labelState.showDelay) {
         const {
           text,
@@ -1032,8 +1050,18 @@
         } = formatDelayShortColored(v);
         parts.push(`<span style="color:${color}">${text}</span>`);
       }
+
+      // NEW: passengers np (modře)
+      if (labelState.showNp) {
+        const np = v?.np;
+        if (np != null && String(np).trim() !== "") {
+          parts.push(`<span style="color:#1565c0">${escapeHtml(String(np))}</span>`);
+        }
+      }
+
       return parts.length ? parts.join(" • ") : "—";
     }
+
 
     function refreshVehicleTooltips() {
       for (const [key, marker] of vehicleMarkers) {
@@ -1078,7 +1106,8 @@
             | age: ${escapeHtml(Math.round(ageSeconds(vehicle) / 60))} min
             <br>
             Zpoždění:
-            <b style="color:${delayColor}">${delayText}</b>
+            <b style="color:${delayColor}">${delayText}</b> | Počet cestujících:
+            <b>${escapeHtml(vehicle.np ?? "—")}</b>
           </div>
           <pre class="json">${escapeHtml(JSON.stringify(vehicle, null, 2))}</pre>
         </div>

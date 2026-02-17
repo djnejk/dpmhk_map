@@ -3,7 +3,12 @@
 // Jednoduchá CORS proxy
 // =======================
 
-// povol CORS (klidně uprav origin)
+// ====== KONFIGURACE ======
+$ANONYMIZE_DRIVER_NAMES = false; // ← false = zobrazovat původní jména
+
+// =======================
+
+// povol CORS
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
@@ -81,6 +86,42 @@ if ($response === false) {
 }
 
 curl_close($ch);
+
+// ====== ANONYMIZACE JMÉNA ŘIDIČE ======
+if (
+    $ANONYMIZE_DRIVER_NAMES &&
+    $httpCode === 200 &&
+    str_contains((string)$contentType, "application/json")
+) {
+    $data = json_decode($response, true);
+
+    if (json_last_error() === JSON_ERROR_NONE) {
+        if (isset($data['vehicles']) && is_array($data['vehicles'])) {
+            foreach ($data['vehicles'] as &$v) {
+                if (!isset($v['dr'])) {
+                    continue;
+                }
+
+                $dr = trim((string)$v['dr']);
+                if ($dr === '') {
+                    continue;
+                }
+
+                // pokud je unknown / unkown / UNKNOWN → nech být
+                if (preg_match('/unk(n)?own/i', $dr)) {
+                    continue;
+                }
+
+                // jinak anonymizuj
+                $v['dr'] = "Skryté jméno " . $v['dn'];
+            }
+            unset($v);
+        }
+
+        // zpět na JSON
+        $response = json_encode($data, JSON_UNESCAPED_UNICODE);
+    }
+}
 
 // přeposlat content-type
 if ($contentType) {

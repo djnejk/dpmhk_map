@@ -593,7 +593,7 @@
     // ====== app config ======
     const CENTER = [50.20960451929457, 15.833433585999199];
 
-    const BASE = "https://dpmhk.djdevs.eu/proxy.php";
+    const BASE = "/proxy.php";
     const RTD_URL = BASE + "?path=/index/getAllRtdVehicles";
     const LINES_URL = BASE + "?path=/index/getLinesWithRoutes";
     const PLATFORMS_URL = BASE + "?path=/index/getAllPlatforms";
